@@ -9,10 +9,10 @@ export async function api(path, options = {}) {
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
   } catch {
-    throw new Error('Nao foi possivel conectar a API. Verifique se o backend esta rodando.');
+    throw new Error('Não foi possível conectar à API. Verifique se o backend está rodando.');
   }
   if (res.status === 204) return null;
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.erro || 'Erro ao processar a requisicao.');
+  if (!res.ok) throw new Error(json.erro || 'Erro ao processar a requisição.');
   return json;
 }

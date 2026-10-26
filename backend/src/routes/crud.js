@@ -1,9 +1,9 @@
 const express = require('express');
 const { sql, getPool } = require('../db');
-const { asyncH, HttpError } = require('../helpers');
+const { asyncH, HttpError, idParam } = require('../helpers');
 
 // Gera um CRUD simples para uma tabela
-// fields: [{ name, label, type: 'string' | 'int', required }]
+// fields: [{ name, label, type: 'string' | 'int', required, max }]
 module.exports = function crud(table, fields) {
   const router = express.Router();
 
@@ -13,13 +13,18 @@ module.exports = function crud(table, fields) {
       let v = body[f.name];
       if (typeof v === 'string') v = v.trim();
       if (v === undefined || v === null || v === '') {
-        if (f.required) throw new HttpError(400, `O campo "${f.label}" e obrigatorio.`);
+        if (f.required) throw new HttpError(400, `O campo "${f.label}" é obrigatório.`);
         data[f.name] = null;
         continue;
       }
       if (f.type === 'int') {
-        v = parseInt(v, 10);
-        if (Number.isNaN(v) || v <= 0) throw new HttpError(400, `O campo "${f.label}" deve ser um numero maior que zero.`);
+        if (!/^\d+$/.test(String(v)) || Number(v) <= 0) {
+          throw new HttpError(400, `O campo "${f.label}" deve ser um número inteiro maior que zero.`);
+        }
+        v = Number(v);
+      } else {
+        v = String(v);
+        if (f.max && v.length > f.max) throw new HttpError(400, `O campo "${f.label}" aceita no máximo ${f.max} caracteres.`);
       }
       data[f.name] = v;
     }
@@ -50,21 +55,23 @@ module.exports = function crud(table, fields) {
   }));
 
   router.put('/:id', asyncH(async (req, res) => {
+    const id = idParam(req);
     const data = parse(req.body);
     const pool = await getPool();
     const sets = fields.map((f) => `${f.name} = @${f.name}`).join(', ');
     const r = await bind(pool.request(), data)
-      .input('id', sql.Int, req.params.id)
+      .input('id', sql.Int, id)
       .query(`UPDATE ${table} SET ${sets} OUTPUT INSERTED.* WHERE id = @id`);
-    if (!r.recordset.length) throw new HttpError(404, 'Registro nao encontrado.');
+    if (!r.recordset.length) throw new HttpError(404, 'Registro não encontrado.');
     res.json(r.recordset[0]);
   }));
 
   router.delete('/:id', asyncH(async (req, res) => {
+    const id = idParam(req);
     const pool = await getPool();
-    const r = await pool.request().input('id', sql.Int, req.params.id)
+    const r = await pool.request().input('id', sql.Int, id)
       .query(`DELETE FROM ${table} WHERE id = @id`);
-    if (!r.rowsAffected[0]) throw new HttpError(404, 'Registro nao encontrado.');
+    if (!r.rowsAffected[0]) throw new HttpError(404, 'Registro não encontrado.');
     res.status(204).end();
   }));
 

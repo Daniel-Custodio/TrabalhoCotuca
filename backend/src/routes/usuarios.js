@@ -1,9 +1,27 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { sql, getPool } = require('../db');
-const { asyncH, HttpError } = require('../helpers');
+const { asyncH, HttpError, idParam } = require('../helpers');
 
 const router = express.Router();
+
+// Confere os dois digitos verificadores do CPF
+function cpfValido(cpf) {
+  if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
+  for (const t of [9, 10]) {
+    let soma = 0;
+    for (let i = 0; i < t; i++) soma += Number(cpf[i]) * (t + 1 - i);
+    if (((soma * 10) % 11) % 10 !== Number(cpf[t])) return false;
+  }
+  return true;
+}
+
+// Aceita apenas datas que existem no calendario e que nao estao no futuro
+function dataValida(texto) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(texto)) return false;
+  const d = new Date(texto + 'T00:00:00Z');
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === texto && d <= new Date();
+}
 
 function validar(body, criando) {
   const d = {
@@ -15,13 +33,18 @@ function validar(body, criando) {
     login: String(body.login || '').trim(),
     senha: String(body.senha || ''),
   };
-  if (d.cpf.length !== 11) throw new HttpError(400, 'CPF deve ter 11 digitos.');
-  if (!d.nome) throw new HttpError(400, 'O campo "Nome completo" e obrigatorio.');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(d.data_aniversario)) throw new HttpError(400, 'Data de aniversario invalida.');
-  if (!d.celular) throw new HttpError(400, 'O campo "Celular" e obrigatorio.');
-  if (!/^\S+@\S+\.\S+$/.test(d.email)) throw new HttpError(400, 'E-mail invalido.');
+  if (!cpfValido(d.cpf)) throw new HttpError(400, 'CPF inválido.');
+  if (!d.nome) throw new HttpError(400, 'O campo "Nome completo" é obrigatório.');
+  if (d.nome.length > 150) throw new HttpError(400, 'O nome aceita no máximo 150 caracteres.');
+  if (!dataValida(d.data_aniversario)) throw new HttpError(400, 'Data de aniversário inválida.');
+  const digitosCelular = d.celular.replace(/\D/g, '').length;
+  if (digitosCelular < 10 || digitosCelular > 11 || d.celular.length > 20) {
+    throw new HttpError(400, 'Celular inválido. Informe o DDD e o número.');
+  }
+  if (!/^\S+@\S+\.\S+$/.test(d.email) || d.email.length > 150) throw new HttpError(400, 'E-mail inválido.');
   if (criando) {
-    if (!d.login) throw new HttpError(400, 'O campo "Login" e obrigatorio.');
+    if (!d.login) throw new HttpError(400, 'O campo "Login" é obrigatório.');
+    if (d.login.length > 50) throw new HttpError(400, 'O login aceita no máximo 50 caracteres.');
     if (d.senha.length < 4) throw new HttpError(400, 'A senha deve ter pelo menos 4 caracteres.');
   } else if (d.senha && d.senha.length < 4) {
     throw new HttpError(400, 'A senha deve ter pelo menos 4 caracteres.');
@@ -67,42 +90,44 @@ router.post('/', asyncH(async (req, res) => {
     await tx.commit();
     res.status(201).json({ id });
   } catch (e) {
-    await tx.rollback();
+    await tx.rollback().catch(() => {});
     throw e;
   }
 }));
 
 router.put('/:id', asyncH(async (req, res) => {
+  const id = idParam(req);
   const d = validar(req.body, false);
   const pool = await getPool();
   const tx = new sql.Transaction(pool);
   await tx.begin();
   try {
     const r = await reqUsuario(new sql.Request(tx), d)
-      .input('id', sql.Int, req.params.id)
+      .input('id', sql.Int, id)
       .query(`UPDATE Usuario SET cpf=@cpf, nome=@nome, data_aniversario=@data_aniversario,
               celular=@celular, email=@email WHERE id=@id`);
-    if (!r.rowsAffected[0]) throw new HttpError(404, 'Usuario nao encontrado.');
+    if (!r.rowsAffected[0]) throw new HttpError(404, 'Usuário não encontrado.');
     if (d.senha) {
       const hash = await bcrypt.hash(d.senha, 10);
       await new sql.Request(tx)
-        .input('id', sql.Int, req.params.id)
+        .input('id', sql.Int, id)
         .input('hash', sql.VarChar(100), hash)
         .query('UPDATE UsuarioLogin SET senha_hash=@hash WHERE usuario_id=@id');
     }
     await tx.commit();
-    res.json({ id: Number(req.params.id) });
+    res.json({ id });
   } catch (e) {
-    await tx.rollback();
+    await tx.rollback().catch(() => {});
     throw e;
   }
 }));
 
 router.delete('/:id', asyncH(async (req, res) => {
+  const id = idParam(req);
   const pool = await getPool();
-  const r = await pool.request().input('id', sql.Int, req.params.id)
+  const r = await pool.request().input('id', sql.Int, id)
     .query('DELETE FROM Usuario WHERE id = @id');
-  if (!r.rowsAffected[0]) throw new HttpError(404, 'Usuario nao encontrado.');
+  if (!r.rowsAffected[0]) throw new HttpError(404, 'Usuário não encontrado.');
   res.status(204).end();
 }));
 
