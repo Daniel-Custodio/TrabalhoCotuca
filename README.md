@@ -91,13 +91,10 @@ A explicação de cada parte do código está em [EXPLICACAO.md](EXPLICACAO.md).
 
 ## Interface
 
-O visual foi pensado em cima do tema do projeto, a portaria da escola onde ficam as chaves das salas:
-
-- **Menu lateral verde-lousa** com destaque em amarelo-giz e fundo de caderno quadriculado.
-- **Painel inicial em formato de quadro de chaves**: cada cadastro é uma etiqueta pendurada que mostra quantos registros existem no banco, além da legenda dos status e de um aviso se a API estiver fora do ar.
-- **Ficha de cadastro** com margem de caderno e furos de fichário; o mesmo formulário serve para cadastrar e editar.
-- **Tabela** com busca (ignora acentos), códigos em formato de etiqueta de chave e status em formato de carimbo colorido (Livre, Ocupado, Bloqueado e Reservado).
-- Máscaras de CPF e celular enquanto digita, avisos de sucesso/erro e layout adaptado para celular.
+- Menu no topo com os links das telas.
+- Página inicial com a quantidade de registros de cada cadastro e o aviso se a API está conectada.
+- Em cada cadastro: um formulário para cadastrar e editar e uma tabela com busca e os botões Editar e Excluir.
+- Máscaras de CPF e celular enquanto digita e mensagens de sucesso ou erro.
 
 ## Bibliografia
 
@@ -108,8 +105,7 @@ O visual foi pensado em cima do tema do projeto, a portaria da escola onde ficam
 - Documentação do pacote mssql (node-mssql): https://github.com/tediousjs/node-mssql
 - Documentação do SQL Server (Microsoft Learn): https://learn.microsoft.com/sql
 - Documentação do bcryptjs: https://github.com/dcodeIO/bcrypt.js
-- MDN Web Docs (CSS Grid, Flexbox, variáveis CSS): https://developer.mozilla.org/pt-BR/docs/Web/CSS
-- Fontsource (fontes Bricolage Grotesque e IBM Plex Mono, licença SIL Open Font License): https://fontsource.org
+- MDN Web Docs (CSS): https://developer.mozilla.org/pt-BR/docs/Web/CSS
 
 ## Equipe
 

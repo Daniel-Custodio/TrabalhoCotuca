@@ -9,7 +9,7 @@ const fields = [
   { name: 'data_aniversario', label: 'Data de aniversário', type: 'date', required: true },
   { name: 'celular', label: 'Celular', required: true, mask: 'celular', maxLength: 15, hint: '(19) 99999-9999' },
   { name: 'email', label: 'E-mail', type: 'email', required: true, maxLength: 150 },
-  { name: 'login', label: 'Login', required: true, createOnly: true, maxLength: 50, show: 'etiqueta' },
+  { name: 'login', label: 'Login', required: true, createOnly: true, maxLength: 50 },
   { name: 'senha', label: 'Senha', type: 'password', required: true, createOnlyRequired: true, formOnly: true },
   { name: 'data_cadastro', label: 'Cadastrado em', show: 'datahora', listOnly: true },
   { name: 'data_ultimo_acesso', label: 'Último acesso', show: 'datahora', listOnly: true, vazio: 'nunca' },

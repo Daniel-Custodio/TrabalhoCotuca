@@ -32,9 +32,3 @@ export function dataHoraBR(v) {
 }
 
 export const semAcento = (v) => String(v ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-
-// Cor do carimbo de acordo com o codigo do status
-export function classeStatus(codigo) {
-  const c = String(codigo || '').toUpperCase();
-  return ['LIVRE', 'OCUPADO', 'BLOQUEADO', 'RESERVADO'].includes(c) ? c.toLowerCase() : '';
-}
