@@ -9,12 +9,12 @@ Esta entrega contém os cadastros de **Usuários**, **Laboratórios**, **Salas**
 
 ### 1. Banco de dados
 1. Abra o SSMS (ou Azure Data Studio) e conecte no servidor.
-2. Abra o arquivo `database/script.sql` e execute tudo de uma vez.
+2. Execute `database/01_criar_tabelas.sql`: cria o banco `DanielCotucaBD`, o login `DanielCotuca` e as tabelas.
+3. Execute `database/02_dados_iniciais.sql`: grava os 4 status (Livre, Ocupado, Bloqueado e Reservado) e alguns laboratórios e salas de exemplo.
+4. Se quiser conferir, execute `database/03_consultas_teste.sql`.
 
-O script cria o banco `DanielCotucaBD`, o login `DanielCotuca`, as tabelas e os 4 status iniciais (Livre, Ocupado, Bloqueado e Reservado).
-
-### 2. Back-end (API)
-Dentro da pasta `backend`, crie um arquivo chamado `.env` com o conteúdo abaixo (ajuste `DB_SERVER` e `DB_INSTANCE` para o seu servidor):
+### 2. API (back-end)
+Na pasta raiz do projeto, crie um arquivo chamado `.env` com o conteúdo abaixo (ajuste `DB_SERVER` e `DB_INSTANCE` para o seu servidor):
 
 ```
 PORT=3001
@@ -33,15 +33,14 @@ DB_USER=DanielCotuca
 DB_PASSWORD=DanielCotuca
 ```
 
-Depois, no terminal:
+Depois, no terminal, na pasta raiz:
 
 ```
-cd backend
 npm install
 npm start
 ```
 
-A API sobe em http://localhost:3001. Para testar a conexão com o banco, acesse http://localhost:3001/api/status.
+A API sobe em http://localhost:3001. O endereço http://localhost:3001/ responde `{"mensagem":"API funcionando!"}` e http://localhost:3001/Status testa a conexão com o banco.
 
 > Se o projeto estiver dentro de uma pasta do OneDrive, prefira `npm start` a `npm run dev`: a sincronização do OneDrive mexe nos arquivos do `node_modules` e faz o `node --watch` reiniciar a API sem parar.
 
@@ -56,14 +55,29 @@ npm run dev
 
 Acesse http://localhost:3000
 
-## Estrutura do projeto
+## Estrutura do projeto (MVC)
 
-- `database/script.sql`: criação do banco, do login e das tabelas Usuario, UsuarioLogin (login, senha criptografada, data de cadastro e data do último acesso), LogAcesso, Laboratorio, Sala, Status e Reserva (as duas últimas usadas nas próximas entregas).
-- `backend/`: API REST com as rotas `/api/usuarios`, `/api/laboratorios`, `/api/salas` e `/api/status` (GET, POST, PUT e DELETE).
-- `frontend/`: telas em Next.js (App Router) com listagem, cadastro, edição e exclusão.
-  - `components/CrudPage.js`: tela genérica de cadastro (ficha + tabela com busca) usada pelos quatro cadastros.
-  - `components/Menu.js`: menu lateral.
-  - `lib/modulos.js`: nome, número e descrição de cada cadastro; `lib/formato.js`: máscaras de CPF/celular e formatação de datas.
+```
+index.js                  liga o servidor (é o que o npm start executa)
+src/config/database.js    conexão com o SQL Server
+src/config/express.js     CORS, leitura do JSON e carregamento das rotas
+src/app/routes/           rotas: cada endereço chama um método do controller
+src/app/controller/       controllers: validam os dados, chamam o model e respondem
+src/app/model/            models: os comandos SQL de cada tabela
+database/                 scripts 01 (criar), 02 (dados iniciais) e 03 (consultas)
+frontend/                 telas em Next.js
+```
+
+A explicação de cada parte do código está em [EXPLICACAO.md](EXPLICACAO.md).
+
+## Rotas da API
+
+| Cadastro | Listar e cadastrar | Buscar, alterar e excluir |
+| --- | --- | --- |
+| Usuário | `GET` e `POST` `/Usuario` | `GET`, `PUT` e `DELETE` `/Usuario/:id` (e `GET /Usuario/cpf/:cpf`) |
+| Laboratório | `GET` e `POST` `/Laboratorio` | `GET`, `PUT` e `DELETE` `/Laboratorio/:id` |
+| Sala | `GET` e `POST` `/Sala` | `GET`, `PUT` e `DELETE` `/Sala/:id` |
+| Status | `GET` e `POST` `/Status` | `GET`, `PUT` e `DELETE` `/Status/:id` |
 
 ## Funcionalidades desta entrega
 
@@ -96,7 +110,6 @@ O visual foi pensado em cima do tema do projeto, a portaria da escola onde ficam
 - Documentação do bcryptjs: https://github.com/dcodeIO/bcrypt.js
 - MDN Web Docs (CSS Grid, Flexbox, variáveis CSS): https://developer.mozilla.org/pt-BR/docs/Web/CSS
 - Fontsource (fontes Bricolage Grotesque e IBM Plex Mono, licença SIL Open Font License): https://fontsource.org
-- Claude (Anthropic): ferramenta de IA utilizada como apoio ao aprendizado e à estruturação do código do projeto.
 
 ## Equipe
 

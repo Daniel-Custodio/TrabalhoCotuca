@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
+import { listar, cadastrar, atualizar, excluir } from '../lib/api';
 import { mascaras, dataBR, dataHoraBR, semAcento, classeStatus } from '../lib/formato';
 
 // Texto que aparece na tabela (tambem usado pela busca)
@@ -42,7 +42,7 @@ export default function CrudPage({ modulo, fields }) {
 
   async function load() {
     try {
-      setItems(await api(endpoint));
+      setItems(await listar(endpoint));
       setErroLista('');
     } catch (e) {
       setErroLista(e.message);
@@ -84,10 +84,10 @@ export default function CrudPage({ modulo, fields }) {
     setSalvando(true);
     try {
       if (editingId) {
-        await api(`${endpoint}/${editingId}`, { method: 'PUT', body: form });
+        await atualizar(endpoint, editingId, form);
         setAviso({ tipo: 'ok', texto: 'Alterações salvas.' });
       } else {
-        await api(endpoint, { method: 'POST', body: form });
+        await cadastrar(endpoint, form);
         setAviso({ tipo: 'ok', texto: 'Cadastro salvo com sucesso.' });
       }
       cancel();
@@ -102,7 +102,7 @@ export default function CrudPage({ modulo, fields }) {
   async function remove(item) {
     if (!confirm(`Excluir ${singular} "${item.nome}"?`)) return;
     try {
-      await api(`${endpoint}/${item.id}`, { method: 'DELETE' });
+      await excluir(endpoint, item.id);
       setAviso({ tipo: 'ok', texto: 'Registro excluído.' });
       if (editingId === item.id) cancel();
       load();
