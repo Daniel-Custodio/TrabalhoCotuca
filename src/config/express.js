@@ -37,10 +37,13 @@ aplicacao.use((request, response) => {
     response.status(404).json({ erro: 'Rota não encontrada.' });
 });
 
-// JSON mal escrito no corpo: 400
+// Erro ao ler o corpo: JSON mal escrito (400) ou corpo grande demais (413)
 aplicacao.use((erro, request, response, next) => {
     if (erro.type === 'entity.parse.failed') {
         return response.status(400).json({ erro: 'JSON inválido no corpo da requisição.' });
+    }
+    if (erro.status >= 400 && erro.status < 500) {
+        return response.status(erro.status).json({ erro: 'Requisição inválida.' });
     }
     console.log(erro);
     response.status(500).json({ erro: 'Erro interno do servidor.' });

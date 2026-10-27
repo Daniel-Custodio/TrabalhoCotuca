@@ -28,7 +28,7 @@ if (autenticacaoWindows) {
     else configuracao.port = parseInt(process.env.DB_PORT || '1433', 10);
 }
 
-// Abre a conexão uma vez só e reaproveita (pool); se falhar, tenta de novo na próxima
+// Cria o pool de conexões uma vez só e reaproveita; se falhar, tenta de novo na próxima
 let conexao = null;
 function conectar() {
     if (!conexao) {

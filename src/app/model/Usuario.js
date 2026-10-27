@@ -1,7 +1,7 @@
 // Model de usuário: SQL das tabelas Usuario e UsuarioLogin (valores sempre como @parâmetros)
 const { sql } = require('../../config/database.js');
 
-// SELECT do usuário com o login junto (a senha nunca é devolvida)
+// SELECT do usuário com o login junto (o hash da senha nunca é devolvido)
 const SELECT_USUARIO = `
     SELECT u.id, u.cpf, u.nome, u.data_aniversario, u.celular, u.email, u.data_cadastro,
            l.login, l.data_ultimo_acesso

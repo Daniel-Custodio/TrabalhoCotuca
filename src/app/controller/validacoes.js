@@ -4,7 +4,7 @@ const { ErroHttp } = require('./erros');
 // Lê o :id da URL (precisa ser inteiro positivo, senão 404)
 function lerId(request) {
     const id = Number(request.params.id);
-    if (!Number.isInteger(id) || id <= 0) throw new ErroHttp(404, 'Registro não encontrado.');
+    if (!Number.isInteger(id) || id <= 0 || id > 2147483647) throw new ErroHttp(404, 'Registro não encontrado.');
     return id;
 }
 
