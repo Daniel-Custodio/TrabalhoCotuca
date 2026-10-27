@@ -101,3 +101,4 @@ O visual foi pensado em cima do tema do projeto, a portaria da escola onde ficam
 ## Equipe
 
 - Daniel de Padua Custodio
+- Gustavo de Oliveira Abreu
