@@ -82,7 +82,7 @@ class UsuarioController {
         };
     }
 
-    // DELETE /Usuario/:id: exclui (409 se o usuário tiver reservas)
+    // DELETE /Usuario/:id: exclui (409 se o usuário tiver reservas ou acessos registrados)
     excluir() {
         return async function (request, response) {
             try {
