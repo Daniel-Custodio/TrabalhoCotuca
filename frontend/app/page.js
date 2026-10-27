@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
-import { listaModulos } from '../lib/modulos';
+import { listar } from '../lib/api';
+import { listaModulos, modulos } from '../lib/modulos';
 import { classeStatus } from '../lib/formato';
 
 // Painel inicial: um "quadro de chaves" com uma etiqueta para cada cadastro
@@ -11,7 +11,7 @@ export default function Painel() {
   const [online, setOnline] = useState(null);
 
   useEffect(() => {
-    Promise.allSettled(listaModulos.map((m) => api(m.endpoint))).then((rs) => {
+    Promise.allSettled(listaModulos.map((m) => listar(m.endpoint))).then((rs) => {
       const d = {};
       rs.forEach((r, i) => { if (r.status === 'fulfilled') d[listaModulos[i].endpoint] = r.value; });
       setDados(d);
@@ -19,7 +19,7 @@ export default function Painel() {
     });
   }, []);
 
-  const status = dados['/status'] || [];
+  const status = dados[modulos.status.endpoint] || [];
 
   return (
     <div>

@@ -1,5 +1,5 @@
--- Sistema de Reserva de Laboratorios e Salas de Aula
--- SQL Server (execute o script inteiro de uma vez, conectado como Autenticacao do Windows)
+-- 01 - Cria o banco, o login e as tabelas (rode inteiro, com Autenticacao do Windows)
+-- Depois rode o 02 (dados iniciais) e, para conferir, o 03 (consultas)
 
 -- 1) Banco de dados
 IF DB_ID('DanielCotucaBD') IS NULL CREATE DATABASE DanielCotucaBD;
@@ -88,11 +88,4 @@ CREATE TABLE Reserva (
     CONSTRAINT FK_Reserva_Usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id),
     CONSTRAINT FK_Reserva_Status  FOREIGN KEY (status_id)  REFERENCES Status(id)
 );
-GO
-
-INSERT INTO Status (codigo, nome, descricao) VALUES
-('LIVRE',     'Livre',     'Recurso ainda nao esta reservado'),
-('OCUPADO',   'Ocupado',   'Recurso esta sendo utilizado na data e hora reservada'),
-('BLOQUEADO', 'Bloqueado', 'Recurso em manutencao, nao pode ser reservado'),
-('RESERVADO', 'Reservado', 'Recurso reservado, porem ainda nao ocupado');
 GO
