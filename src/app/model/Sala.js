@@ -1,9 +1,9 @@
-// Model de sala: um método para cada comando SQL (valores sempre como @parâmetros)
+// Model de sala: um metodo para cada comando SQL (valores sempre como @parametros)
 const { sql } = require('../../config/database.js');
 
 class SalaCRUD {
     constructor(db) {
-        this._db = db; // conexão com o banco
+        this._db = db; // conexao com o banco
     }
 
     // Lista todas
@@ -31,7 +31,7 @@ class SalaCRUD {
                     VALUES (@codigo, @nome, @capacidade, @localizacao)`);
     }
 
-    // Altera e devolve a linha alterada (vazio = id não existe)
+    // Altera e devolve a linha alterada (vazio = id nao existe)
     atualizar(id, sala) {
         return this._db.request()
             .input('id', sql.Int, id)

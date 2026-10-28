@@ -1,6 +1,6 @@
-// Conexão com o SQL Server (os dados vêm do .env)
+// Conexao com o SQL Server (os dados vem do .env)
 
-// Escolhe o driver: Autenticação do Windows (msnodesqlv8) ou login do SQL Server (padrão)
+// Escolhe o driver: Autenticacao do Windows (msnodesqlv8) ou login do SQL Server (padrao)
 const autenticacaoWindows = (process.env.DB_AUTH || 'sql').toLowerCase() === 'windows';
 const sql = autenticacaoWindows ? require('mssql/msnodesqlv8') : require('mssql');
 
@@ -8,7 +8,7 @@ const servidor = process.env.DB_SERVER || 'localhost';
 const banco = process.env.DB_NAME || 'DanielCotucaBD';
 const instancia = process.env.DB_INSTANCE; // ex.: SQLEXPRESS
 
-// Configuração da conexão
+// Configuracao da conexao
 let configuracao;
 if (autenticacaoWindows) {
     const driver = process.env.DB_ODBC_DRIVER || 'ODBC Driver 17 for SQL Server';
@@ -28,7 +28,7 @@ if (autenticacaoWindows) {
     else configuracao.port = parseInt(process.env.DB_PORT || '1433', 10);
 }
 
-// Cria o pool de conexões uma vez só e reaproveita; se falhar, tenta de novo na próxima
+// Cria o pool de conexoes uma vez so e reaproveita; se falhar, tenta de novo na proxima
 let conexao = null;
 function conectar() {
     if (!conexao) {

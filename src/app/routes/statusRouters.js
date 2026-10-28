@@ -1,4 +1,4 @@
-// Rotas de status: cada endereço chama um método do controller
+// Rotas de status: cada endereco chama um metodo do controller
 const StatusController = require('../controller/statusController');
 
 const controller = new StatusController();

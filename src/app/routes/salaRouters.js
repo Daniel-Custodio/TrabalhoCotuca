@@ -1,4 +1,4 @@
-// Rotas de sala: cada endereço chama um método do controller
+// Rotas de sala: cada endereco chama um metodo do controller
 const SalaController = require('../controller/salaController');
 
 const controller = new SalaController();

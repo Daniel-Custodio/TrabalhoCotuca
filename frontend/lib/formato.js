@@ -31,4 +31,4 @@ export function dataHoraBR(v) {
   return `${dataBR(s)} ${s.slice(11, 16)}`;
 }
 
-export const semAcento = (v) => String(v ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+export const semAcento = (v) => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

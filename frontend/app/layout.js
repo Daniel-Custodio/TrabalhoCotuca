@@ -2,21 +2,21 @@ import './globals.css';
 import Menu from '../components/Menu';
 
 export const metadata = {
-  title: 'Reserva de Laboratórios e Salas',
-  description: 'Sistema de reserva de laboratórios e salas de aula',
+  title: 'Reserva de Laboratorios e Salas',
+  description: 'Sistema de reserva de laboratorios e salas de aula',
 };
 
-// Estrutura de todas as páginas: topo com menu, conteúdo e rodapé
+// Estrutura de todas as paginas: topo com menu, conteudo e rodape
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <body>
         <header className="topo">
-          <div className="titulo-site">Sistema de Reserva de Laboratórios e Salas</div>
+          <div className="titulo-site">Sistema de Reserva de Laboratorios e Salas</div>
           <Menu />
         </header>
         <main className="conteudo">{children}</main>
-        <footer className="rodape">Prática Profissional - 2º semestre - 2026</footer>
+        <footer className="rodape">Pratica Profissional - 2o semestre - 2026</footer>
       </body>
     </html>
   );

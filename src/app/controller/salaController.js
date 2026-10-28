@@ -25,7 +25,7 @@ class SalaController {
                 const id = lerId(request);
                 const model = new SalaCRUD(await conectar());
                 const resultado = await model.buscarPorID(id);
-                if (!resultado.recordset.length) throw new ErroHttp(404, 'Sala não encontrada.');
+                if (!resultado.recordset.length) throw new ErroHttp(404, 'Sala nao encontrada.');
                 response.json(resultado.recordset[0]);
             } catch (erro) {
                 tratarErro(response, erro, 'Erro ao buscar a sala.');
@@ -55,7 +55,7 @@ class SalaController {
                 const sala = validarRecurso(request.body);
                 const model = new SalaCRUD(await conectar());
                 const resultado = await model.atualizar(id, sala);
-                if (!resultado.recordset.length) throw new ErroHttp(404, 'Sala não encontrada.');
+                if (!resultado.recordset.length) throw new ErroHttp(404, 'Sala nao encontrada.');
                 response.json(resultado.recordset[0]);
             } catch (erro) {
                 tratarErro(response, erro, 'Erro ao alterar a sala.');
@@ -70,8 +70,8 @@ class SalaController {
                 const id = lerId(request);
                 const model = new SalaCRUD(await conectar());
                 const resultado = await model.excluir(id);
-                if (!resultado.rowsAffected[0]) throw new ErroHttp(404, 'Sala não encontrada.');
-                response.json({ mensagem: 'Sala excluída com sucesso.' });
+                if (!resultado.rowsAffected[0]) throw new ErroHttp(404, 'Sala nao encontrada.');
+                response.json({ mensagem: 'Sala excluida com sucesso.' });
             } catch (erro) {
                 tratarErro(response, erro, 'Erro ao excluir a sala.');
             }
