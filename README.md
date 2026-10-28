@@ -110,3 +110,4 @@ A explicação de cada parte do código está em [EXPLICACAO.md](EXPLICACAO.md).
 ## Equipe
 
 - Daniel de Padua Custodio
+- Gustavo de Oliveira Abreu
