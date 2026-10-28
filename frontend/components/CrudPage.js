@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { listar, cadastrar, atualizar, excluir } from '../lib/api';
 import { mascaras, dataBR, dataHoraBR, semAcento } from '../lib/formato';
 
-// Texto que aparece na tabela (também usado na busca)
+// Texto que aparece na tabela (tambem usado na busca)
 function texto(f, item) {
   const v = item[f.name];
   if (v === null || v === undefined || v === '') return f.vazio || '-';
@@ -13,10 +13,10 @@ function texto(f, item) {
   return String(v);
 }
 
-// Tela de cadastro usada por Usuários, Laboratórios, Salas e Status.
+// Tela de cadastro usada por Usuarios, Laboratorios, Salas e Status.
 // fields: { name, label, type, required, maxLength, hint, mask, show, vazio,
-//           createOnly (bloqueado na edição), createOnlyRequired (obrigatório só no cadastro),
-//           formOnly (só no formulário), listOnly (só na tabela) }
+//           createOnly (bloqueado na edicao), createOnlyRequired (obrigatorio so no cadastro),
+//           formOnly (so no formulario), listOnly (so na tabela) }
 export default function CrudPage({ modulo, fields }) {
   const { endpoint, titulo, singular } = modulo;
   const formFields = fields.filter((f) => !f.listOnly);
@@ -39,7 +39,7 @@ export default function CrudPage({ modulo, fields }) {
   }
   useEffect(() => { carregar(); }, []);
 
-  // Coloca os dados do registro no formulário para editar
+  // Coloca os dados do registro no formulario para editar
   function editar(item) {
     const dados = { ...vazio };
     formFields.forEach((f) => {
@@ -60,13 +60,13 @@ export default function CrudPage({ modulo, fields }) {
     setEditingId(null);
   }
 
-  // Cadastra (POST) ou salva a edição (PUT)
+  // Cadastra (POST) ou salva a edicao (PUT)
   async function salvar(e) {
     e.preventDefault();
     try {
       if (editingId) {
         await atualizar(endpoint, editingId, form);
-        setMensagem({ tipo: 'ok', texto: 'Alterações salvas.' });
+        setMensagem({ tipo: 'ok', texto: 'Alteracoes salvas.' });
       } else {
         await cadastrar(endpoint, form);
         setMensagem({ tipo: 'ok', texto: 'Cadastro salvo com sucesso.' });
@@ -83,7 +83,7 @@ export default function CrudPage({ modulo, fields }) {
     if (!confirm(`Excluir ${singular} "${item.nome}"?`)) return;
     try {
       await excluir(endpoint, item.id);
-      setMensagem({ tipo: 'ok', texto: 'Registro excluído.' });
+      setMensagem({ tipo: 'ok', texto: 'Registro excluido.' });
       if (editingId === item.id) cancelar();
       carregar();
     } catch (e) {
@@ -125,7 +125,7 @@ export default function CrudPage({ modulo, fields }) {
           );
         })}
 
-        <button type="submit" className="btn-salvar">{editingId ? 'Salvar alterações' : 'Cadastrar'}</button>
+        <button type="submit" className="btn-salvar">{editingId ? 'Salvar alteracoes' : 'Cadastrar'}</button>
         {editingId && <button type="button" className="btn-cancelar" onClick={cancelar}>Cancelar</button>}
       </form>
 
@@ -139,7 +139,7 @@ export default function CrudPage({ modulo, fields }) {
           <thead>
             <tr>
               {columns.map((f) => <th key={f.name}>{f.label}</th>)}
-              <th>Ações</th>
+              <th>Acoes</th>
             </tr>
           </thead>
           <tbody>

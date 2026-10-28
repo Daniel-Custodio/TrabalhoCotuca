@@ -1,12 +1,12 @@
 import Link from 'next/link';
 
-// Menu do topo com os links das páginas
+// Menu do topo com os links das paginas
 export default function Menu() {
   return (
     <nav className="menu">
-      <Link href="/">Início</Link>
-      <Link href="/usuarios">Usuários</Link>
-      <Link href="/laboratorios">Laboratórios</Link>
+      <Link href="/">Inicio</Link>
+      <Link href="/usuarios">Usuarios</Link>
+      <Link href="/laboratorios">Laboratorios</Link>
       <Link href="/salas">Salas</Link>
       <Link href="/status">Status</Link>
     </nav>

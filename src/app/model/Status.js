@@ -1,9 +1,9 @@
-// Model de status da reserva: um método para cada comando SQL (valores sempre como @parâmetros)
+// Model de status da reserva: um metodo para cada comando SQL (valores sempre como @parametros)
 const { sql } = require('../../config/database.js');
 
 class StatusCRUD {
     constructor(db) {
-        this._db = db; // conexão com o banco
+        this._db = db; // conexao com o banco
     }
 
     // Lista todos
@@ -30,7 +30,7 @@ class StatusCRUD {
                     VALUES (@codigo, @nome, @descricao)`);
     }
 
-    // Altera e devolve a linha alterada (vazio = id não existe)
+    // Altera e devolve a linha alterada (vazio = id nao existe)
     atualizar(id, status) {
         return this._db.request()
             .input('id', sql.Int, id)

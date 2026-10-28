@@ -13,15 +13,15 @@ aplicacao.use((request, response, next) => {
     response.header('Access-Control-Allow-Origin', '*');
     response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    // Pré-voo do navegador (OPTIONS): só responde os cabeçalhos
+    // Pre-voo do navegador (OPTIONS): so responde os cabecalhos
     if (request.method === 'OPTIONS') return response.sendStatus(204);
     next();
 });
 
-// Lê o JSON do corpo da requisição (vira request.body)
+// Le o JSON do corpo da requisicao (vira request.body)
 aplicacao.use(express.json());
 
-// Rota inicial: confirma que a API está no ar
+// Rota inicial: confirma que a API esta no ar
 aplicacao.get('/', (request, response) => {
     response.json({ mensagem: 'API funcionando!' });
 });
@@ -32,18 +32,18 @@ laboratorioRouters(aplicacao);
 salaRouters(aplicacao);
 statusRouters(aplicacao);
 
-// Rota que não existe: 404
+// Rota que nao existe: 404
 aplicacao.use((request, response) => {
-    response.status(404).json({ erro: 'Rota não encontrada.' });
+    response.status(404).json({ erro: 'Rota nao encontrada.' });
 });
 
 // Erro ao ler o corpo: JSON mal escrito (400) ou corpo grande demais (413)
 aplicacao.use((erro, request, response, next) => {
     if (erro.type === 'entity.parse.failed') {
-        return response.status(400).json({ erro: 'JSON inválido no corpo da requisição.' });
+        return response.status(400).json({ erro: 'JSON invalido no corpo da requisicao.' });
     }
     if (erro.status >= 400 && erro.status < 500) {
-        return response.status(erro.status).json({ erro: 'Requisição inválida.' });
+        return response.status(erro.status).json({ erro: 'Requisicao invalida.' });
     }
     console.log(erro);
     response.status(500).json({ erro: 'Erro interno do servidor.' });

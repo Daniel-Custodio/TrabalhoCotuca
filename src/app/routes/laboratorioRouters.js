@@ -1,4 +1,4 @@
-// Rotas de laboratório: cada endereço chama um método do controller
+// Rotas de laboratorio: cada endereco chama um metodo do controller
 const LaboratorioController = require('../controller/laboratorioController');
 
 const controller = new LaboratorioController();

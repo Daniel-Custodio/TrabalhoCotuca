@@ -32,7 +32,7 @@ body {
   text-decoration: underline;
 }
 
-/* Caixa branca do conteúdo */
+/* Caixa branca do conteudo */
 .conteudo {
   max-width: 1000px;
   margin: 20px auto;
@@ -52,7 +52,7 @@ h2 {
   font-size: 18px;
 }
 
-/* Formulário */
+/* Formulario */
 .formulario {
   background-color: #f5f8fc;
   border: 1px solid #c3d0de;
@@ -77,7 +77,7 @@ h2 {
   border: 1px solid #999;
 }
 
-/* Botões */
+/* Botoes */
 button {
   padding: 7px 14px;
   border: none;

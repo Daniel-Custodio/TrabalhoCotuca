@@ -1,14 +1,14 @@
 // Todas as chamadas do front-end para a API passam por aqui
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-// Confere a resposta: se a API respondeu com erro, lança a mensagem que ela mandou ({ "erro": "..." })
+// Confere a resposta: se a API respondeu com erro, lanca a mensagem que ela mandou ({ "erro": "..." })
 async function tratarResposta(resposta) {
   const dados = await resposta.json().catch(() => ({}));
-  if (!resposta.ok) throw new Error(dados.erro || 'Erro ao processar a requisição.');
+  if (!resposta.ok) throw new Error(dados.erro || 'Erro ao processar a requisicao.');
   return dados;
 }
 
-// Faz a requisição HTTP; quando há dados, eles vão no corpo em JSON
+// Faz a requisicao HTTP; quando ha dados, eles vao no corpo em JSON
 async function chamar(caminho, metodo = 'GET', dados) {
   let resposta;
   try {
@@ -18,7 +18,7 @@ async function chamar(caminho, metodo = 'GET', dados) {
       body: dados ? JSON.stringify(dados) : undefined,
     });
   } catch {
-    throw new Error('Não foi possível conectar à API. Verifique se o backend está rodando.');
+    throw new Error('Nao foi possivel conectar a API. Verifique se o backend esta rodando.');
   }
   return tratarResposta(resposta);
 }

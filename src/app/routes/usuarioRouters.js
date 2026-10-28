@@ -1,4 +1,4 @@
-// Rotas de usuário: cada endereço chama um método do controller
+// Rotas de usuario: cada endereco chama um metodo do controller
 const UsuarioController = require('../controller/usuarioController');
 
 const controller = new UsuarioController();

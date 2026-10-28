@@ -25,7 +25,7 @@ class StatusController {
                 const id = lerId(request);
                 const model = new StatusCRUD(await conectar());
                 const resultado = await model.buscarPorID(id);
-                if (!resultado.recordset.length) throw new ErroHttp(404, 'Status não encontrado.');
+                if (!resultado.recordset.length) throw new ErroHttp(404, 'Status nao encontrado.');
                 response.json(resultado.recordset[0]);
             } catch (erro) {
                 tratarErro(response, erro, 'Erro ao buscar o status.');
@@ -55,7 +55,7 @@ class StatusController {
                 const status = validarStatus(request.body);
                 const model = new StatusCRUD(await conectar());
                 const resultado = await model.atualizar(id, status);
-                if (!resultado.recordset.length) throw new ErroHttp(404, 'Status não encontrado.');
+                if (!resultado.recordset.length) throw new ErroHttp(404, 'Status nao encontrado.');
                 response.json(resultado.recordset[0]);
             } catch (erro) {
                 tratarErro(response, erro, 'Erro ao alterar o status.');
@@ -70,8 +70,8 @@ class StatusController {
                 const id = lerId(request);
                 const model = new StatusCRUD(await conectar());
                 const resultado = await model.excluir(id);
-                if (!resultado.rowsAffected[0]) throw new ErroHttp(404, 'Status não encontrado.');
-                response.json({ mensagem: 'Status excluído com sucesso.' });
+                if (!resultado.rowsAffected[0]) throw new ErroHttp(404, 'Status nao encontrado.');
+                response.json({ mensagem: 'Status excluido com sucesso.' });
             } catch (erro) {
                 tratarErro(response, erro, 'Erro ao excluir o status.');
             }

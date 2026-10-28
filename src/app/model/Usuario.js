@@ -1,14 +1,14 @@
-// Model de usuário: SQL das tabelas Usuario e UsuarioLogin (valores sempre como @parâmetros)
+// Model de usuario: SQL das tabelas Usuario e UsuarioLogin (valores sempre como @parametros)
 const { sql } = require('../../config/database.js');
 
-// SELECT do usuário com o login junto (o hash da senha nunca é devolvido)
+// SELECT do usuario com o login junto (o hash da senha nunca e devolvido)
 const SELECT_USUARIO = `
     SELECT u.id, u.cpf, u.nome, u.data_aniversario, u.celular, u.email, u.data_cadastro,
            l.login, l.data_ultimo_acesso
     FROM dbo.Usuario u
     LEFT JOIN dbo.UsuarioLogin l ON l.usuario_id = u.id`;
 
-// Parâmetros dos dados pessoais (usados no INSERT e no UPDATE)
+// Parametros dos dados pessoais (usados no INSERT e no UPDATE)
 function dadosPessoais(request, usuario) {
     return request
         .input('cpf', sql.Char(11), usuario.cpf)
@@ -20,7 +20,7 @@ function dadosPessoais(request, usuario) {
 
 class UsuarioCRUD {
     constructor(db) {
-        this._db = db; // conexão com o banco
+        this._db = db; // conexao com o banco
     }
 
     // Lista todos, em ordem de nome
@@ -43,7 +43,7 @@ class UsuarioCRUD {
             .query(`${SELECT_USUARIO} WHERE u.cpf = @cpf`);
     }
 
-    // Grava usuário e login juntos numa transação (ou grava os dois, ou nenhum)
+    // Grava usuario e login juntos numa transacao (ou grava os dois, ou nenhum)
     async inserir(usuario, senhaHash) {
         const transacao = new sql.Transaction(this._db);
         await transacao.begin();
@@ -61,7 +61,7 @@ class UsuarioCRUD {
                 .query(`INSERT INTO dbo.UsuarioLogin (usuario_id, login, senha_hash)
                         VALUES (@usuario_id, @login, @senha_hash)`);
 
-            await transacao.commit(); // confirma as duas gravações
+            await transacao.commit(); // confirma as duas gravacoes
             return id;
         } catch (erro) {
             await transacao.rollback().catch(() => {}); // desfaz tudo
@@ -69,7 +69,7 @@ class UsuarioCRUD {
         }
     }
 
-    // Altera os dados e, se veio senha nova, troca o hash (false = id não existe)
+    // Altera os dados e, se veio senha nova, troca o hash (false = id nao existe)
     async atualizar(id, usuario, senhaHash) {
         const transacao = new sql.Transaction(this._db);
         await transacao.begin();
@@ -100,7 +100,7 @@ class UsuarioCRUD {
         }
     }
 
-    // Exclui o usuário (o login sai junto pelo ON DELETE CASCADE)
+    // Exclui o usuario (o login sai junto pelo ON DELETE CASCADE)
     excluir(id) {
         return this._db.request()
             .input('id', sql.Int, id)
