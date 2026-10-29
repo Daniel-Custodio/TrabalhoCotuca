@@ -23,8 +23,11 @@ async function chamar(caminho, metodo = 'GET', dados) {
   return tratarResposta(resposta);
 }
 
-// endpoint = '/Usuario', '/Laboratorio', '/Sala' ou '/Status' (veja lib/modulos.js)
+// endpoint = '/Usuario', '/Laboratorio', '/Sala', '/Status' ou '/Reserva'
 export const listar = (endpoint) => chamar(endpoint);
 export const cadastrar = (endpoint, dados) => chamar(endpoint, 'POST', dados);
 export const atualizar = (endpoint, id, dados) => chamar(`${endpoint}/${id}`, 'PUT', dados);
 export const excluir = (endpoint, id) => chamar(`${endpoint}/${id}`, 'DELETE');
+
+// Login: a API confere o login e a senha (POST /Login)
+export const entrar = (login, senha) => chamar('/Login', 'POST', { login, senha });

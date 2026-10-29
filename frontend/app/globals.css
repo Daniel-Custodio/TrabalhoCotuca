@@ -70,7 +70,8 @@ h2 {
   margin-bottom: 3px;
 }
 
-.campo input {
+.campo input,
+.campo select {
   width: 300px;
   max-width: 100%;
   padding: 6px;
@@ -154,4 +155,88 @@ tr:nth-child(even) {
   color: #666;
   font-size: 13px;
   padding: 10px;
+}
+
+/* Texto de ajuda embaixo do titulo */
+.ajuda {
+  color: #555;
+}
+
+.obrigatorio {
+  color: #777;
+  font-size: 13px;
+}
+
+/* Usuario logado e botao Sair no menu */
+.usuario-logado {
+  color: #dce8f7;
+  margin-left: 10px;
+}
+
+.btn-sair {
+  background-color: #c0392b;
+  margin-left: 10px;
+  padding: 4px 10px;
+}
+
+/* Atalhos da pagina inicial */
+.opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.opcao {
+  display: block;
+  width: 280px;
+  padding: 14px;
+  border: 1px solid #c3d0de;
+  background-color: #f5f8fc;
+  color: #1e5aa8;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.opcao:hover {
+  background-color: #e3ecf7;
+}
+
+.opcao span {
+  display: block;
+  margin-top: 4px;
+  color: #555;
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.opcao.principal {
+  background-color: #2e8b57;
+  color: white;
+}
+
+.opcao.principal span {
+  color: #e6f4ec;
+}
+
+/* Filtros da consulta de reservas */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin: 10px 0;
+}
+
+.filtros label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.filtros select,
+.filtros input {
+  padding: 6px;
+  border: 1px solid #999;
 }

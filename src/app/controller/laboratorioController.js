@@ -1,6 +1,7 @@
 // Controller de laboratorio: valida os dados, chama o model e monta a resposta
 const { conectar } = require('../../config/database.js');
 const LaboratorioCRUD = require('../model/Laboratorio.js');
+const ReservaCRUD = require('../model/Reserva.js');
 const { lerId, validarRecurso } = require('./validacoes.js');
 const { ErroHttp, tratarErro } = require('./erros.js');
 
@@ -69,6 +70,8 @@ class LaboratorioController {
             try {
                 const id = lerId(request);
                 const model = new LaboratorioCRUD(await conectar());
+                const reservas = await new ReservaCRUD(await conectar()).contarPorRecurso('L', id);
+                if (reservas > 0) throw new ErroHttp(409, 'Esse laboratorio tem reservas. Cancele as reservas antes de excluir.');
                 const resultado = await model.excluir(id);
                 if (!resultado.rowsAffected[0]) throw new ErroHttp(404, 'Laboratorio nao encontrado.');
                 response.json({ mensagem: 'Laboratorio excluido com sucesso.' });

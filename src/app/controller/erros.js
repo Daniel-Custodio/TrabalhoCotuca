@@ -40,7 +40,7 @@ function tratarErro(response, erro, mensagemPadrao) {
         if (response.req.method === 'DELETE') {
             return response.status(409).json({ erro: 'Registro em uso por outro cadastro, nao pode ser excluido.' });
         }
-        return response.status(400).json({ erro: 'O banco recusou os dados por uma regra de integridade.' });
+        return response.status(400).json({ erro: 'Algum dado informado nao existe no banco (usuario ou status).' });
     }
 
     // Texto maior que a coluna (erros 2628 e 8152): 400

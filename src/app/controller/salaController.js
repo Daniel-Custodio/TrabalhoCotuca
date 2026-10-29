@@ -1,6 +1,7 @@
 // Controller de sala: valida os dados, chama o model e monta a resposta
 const { conectar } = require('../../config/database.js');
 const SalaCRUD = require('../model/Sala.js');
+const ReservaCRUD = require('../model/Reserva.js');
 const { lerId, validarRecurso } = require('./validacoes.js');
 const { ErroHttp, tratarErro } = require('./erros.js');
 
@@ -69,6 +70,8 @@ class SalaController {
             try {
                 const id = lerId(request);
                 const model = new SalaCRUD(await conectar());
+                const reservas = await new ReservaCRUD(await conectar()).contarPorRecurso('S', id);
+                if (reservas > 0) throw new ErroHttp(409, 'Essa sala tem reservas. Cancele as reservas antes de excluir.');
                 const resultado = await model.excluir(id);
                 if (!resultado.rowsAffected[0]) throw new ErroHttp(404, 'Sala nao encontrada.');
                 response.json({ mensagem: 'Sala excluida com sucesso.' });
