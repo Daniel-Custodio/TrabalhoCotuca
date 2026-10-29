@@ -1,72 +1,48 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
-import { listaModulos } from '../lib/modulos';
-import { classeStatus } from '../lib/formato';
+import { listar } from '../lib/api';
+import { usuarioLogado } from '../lib/sessao';
 
-// Painel inicial: um "quadro de chaves" com uma etiqueta para cada cadastro
-export default function Painel() {
-  const [dados, setDados] = useState({});
-  const [online, setOnline] = useState(null);
+// Pagina inicial: atalhos para o que a pessoa pode fazer no sistema
+export default function Inicio() {
+  const [usuario, setUsuario] = useState(null);
+  const [apiFora, setApiFora] = useState(false);
 
   useEffect(() => {
-    Promise.allSettled(listaModulos.map((m) => api(m.endpoint))).then((rs) => {
-      const d = {};
-      rs.forEach((r, i) => { if (r.status === 'fulfilled') d[listaModulos[i].endpoint] = r.value; });
-      setDados(d);
-      setOnline(rs.some((r) => r.status === 'fulfilled'));
-    });
+    setUsuario(usuarioLogado());
+    listar('/Status').catch(() => setApiFora(true)); // so para avisar se a API estiver desligada
   }, []);
-
-  const status = dados['/status'] || [];
 
   return (
     <div>
-      <header className="cabecalho">
-        <span className="sobretitulo">00 · Painel</span>
-        <h1><span className="marca-texto">Reserva de laboratórios e salas de aula</span></h1>
-        <p>Escolha um cadastro no quadro de chaves. Cada etiqueta mostra quantos registros já estão no banco.</p>
-      </header>
+      <h1>Ola{usuario ? `, ${usuario.nome}` : ''}!</h1>
+      <p className="ajuda">O que voce quer fazer?</p>
 
-      <section className="quadro" aria-label="Cadastros">
-        {listaModulos.map((m) => {
-          const lista = dados[m.endpoint];
-          return (
-            <Link key={m.href} href={m.href} className={`chave ${m.cor}`}>
-              <span className="prego" aria-hidden="true" />
-              <span className="chave-num">{m.num}</span>
-              <strong>{m.titulo}</strong>
-              <span className="chave-texto">{m.texto}</span>
-              <span className="chave-total">
-                {lista ? String(lista.length).padStart(2, '0') : '—'}
-                <small>{lista ? 'cadastrados' : 'sem conexão'}</small>
-              </span>
-            </Link>
-          );
-        })}
-      </section>
+      <div className="opcoes">
+        <Link href="/reservas" className="opcao principal">
+          Reservar laboratorio ou sala
+          <span>Escolha o dia e o horario e veja as reservas</span>
+        </Link>
+        <Link href="/laboratorios" className="opcao">
+          Laboratorios
+          <span>Cadastrar e ver os laboratorios</span>
+        </Link>
+        <Link href="/salas" className="opcao">
+          Salas de aula
+          <span>Cadastrar e ver as salas</span>
+        </Link>
+        <Link href="/usuarios" className="opcao">
+          Usuarios
+          <span>Pessoas que usam o sistema</span>
+        </Link>
+        <Link href="/status" className="opcao">
+          Status das reservas
+          <span>Livre, Reservado, Ocupado e Bloqueado</span>
+        </Link>
+      </div>
 
-      {status.length > 0 && (
-        <section className="legenda">
-          <h2>Carimbos de status</h2>
-          <ul>
-            {status.map((s) => (
-              <li key={s.id}>
-                <span className={`carimbo ${classeStatus(s.codigo)}`}>{s.nome}</span>
-                <p>{s.descricao || 'Sem descrição.'}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <p className={`conexao ${online === null ? '' : online ? 'on' : 'off'}`}>
-        <span className="ponto" />
-        {online === null && 'Verificando conexão com a API…'}
-        {online === true && 'API conectada'}
-        {online === false && 'API fora do ar. Rode "npm start" na pasta backend.'}
-      </p>
+      {apiFora && <p className="mensagem erro">O sistema esta fora do ar: a API precisa estar ligada (npm start).</p>}
     </div>
   );
 }

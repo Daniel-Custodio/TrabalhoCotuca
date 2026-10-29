@@ -1,25 +1,19 @@
-// Cadastros do sistema: usados no menu lateral, no painel e no topo de cada tela
+// Cadastros do sistema: href = endereco da tela, endpoint = rota da API, descricao = ajuda no topo da tela
 export const modulos = {
   usuarios: {
-    href: '/usuarios', endpoint: '/usuarios', num: '01', titulo: 'Usuários', cor: 'giz',
-    singular: 'usuário', novo: 'Novo usuário',
-    texto: 'Quem pode reservar: dados pessoais, login e senha.',
+    href: '/usuarios', endpoint: '/Usuario', titulo: 'Usuarios', singular: 'usuario',
+    descricao: 'Pessoas que podem entrar no sistema e fazer reservas.',
   },
   laboratorios: {
-    href: '/laboratorios', endpoint: '/laboratorios', num: '02', titulo: 'Laboratórios', cor: 'lousa',
-    singular: 'laboratório', novo: 'Novo laboratório',
-    texto: 'Laboratórios que podem ser reservados.',
+    href: '/laboratorios', endpoint: '/Laboratorio', titulo: 'Laboratorios', singular: 'laboratorio',
+    descricao: 'Laboratorios que podem ser reservados. Cada um tem um codigo curto para identificar, por exemplo LAB-01.',
   },
   salas: {
-    href: '/salas', endpoint: '/salas', num: '03', titulo: 'Salas de aula', cor: 'tijolo',
-    singular: 'sala', novo: 'Nova sala',
-    texto: 'Salas de aula que podem ser reservadas.',
+    href: '/salas', endpoint: '/Sala', titulo: 'Salas', singular: 'sala',
+    descricao: 'Salas de aula que podem ser reservadas. Cada uma tem um codigo curto para identificar, por exemplo SALA-101.',
   },
   status: {
-    href: '/status', endpoint: '/status', num: '04', titulo: 'Status', cor: 'papel',
-    singular: 'status', novo: 'Novo status',
-    texto: 'Situações de uma reserva: livre, ocupado, bloqueado ou reservado.',
+    href: '/status', endpoint: '/Status', titulo: 'Status', singular: 'status',
+    descricao: 'Situacoes que uma reserva pode ter: Livre, Reservado, Ocupado ou Bloqueado.',
   },
 };
-
-export const listaModulos = Object.values(modulos);

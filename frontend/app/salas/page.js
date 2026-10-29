@@ -3,11 +3,12 @@ import { modulos } from '../../lib/modulos';
 
 export const metadata = { title: 'Salas de aula' };
 
+// label = texto do formulario, coluna = titulo da coluna na tabela, hint = exemplo dentro do campo
 const fields = [
-  { name: 'codigo', label: 'Código', required: true, maxLength: 20, hint: 'SALA-12', show: 'etiqueta' },
-  { name: 'nome', label: 'Nome', required: true, maxLength: 100 },
-  { name: 'capacidade', label: 'Capacidade', type: 'number', required: true, suffix: 'lugares' },
-  { name: 'localizacao', label: 'Localização', required: true, maxLength: 150, hint: 'Bloco, andar...' },
+  { name: 'codigo', label: 'Codigo da sala', coluna: 'Codigo', required: true, maxLength: 20, hint: 'ex.: SALA-101' },
+  { name: 'nome', label: 'Nome da sala', coluna: 'Nome', required: true, maxLength: 100, hint: 'ex.: Sala 101' },
+  { name: 'capacidade', label: 'Quantas pessoas cabem', coluna: 'Lugares', type: 'number', required: true, hint: 'ex.: 40' },
+  { name: 'localizacao', label: 'Onde fica', coluna: 'Local', required: true, maxLength: 150, hint: 'ex.: Bloco B, 1o andar' },
 ];
 
 export default function Page() {

@@ -1,220 +1,179 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { api } from '../lib/api';
-import { mascaras, dataBR, dataHoraBR, semAcento, classeStatus } from '../lib/formato';
+import { useRouter } from 'next/navigation';
+import { listar, cadastrar, atualizar, excluir } from '../lib/api';
+import { mascaras, dataBR, dataHoraBR, semAcento } from '../lib/formato';
 
-// Texto que aparece na tabela (tambem usado pela busca)
+// Texto que aparece na tabela (tambem usado na busca)
 function texto(f, item) {
   const v = item[f.name];
-  if (v === null || v === undefined || v === '') return '';
+  if (v === null || v === undefined || v === '') return f.vazio || '-';
   if (f.type === 'date') return dataBR(v);
   if (f.show === 'datahora') return dataHoraBR(v);
   if (f.mask) return mascaras[f.mask](v);
   return String(v);
 }
 
-function Celula({ f, item }) {
-  const t = texto(f, item);
-  if (!t) return <span className="vazio">{f.vazio || '—'}</span>;
-  if (f.show === 'etiqueta') return <span className="etiqueta">{t}</span>;
-  if (f.show === 'carimbo') return <span className={`carimbo ${classeStatus(item.codigo)}`}>{t}</span>;
-  return <>{t}{f.suffix && <small className="sufixo"> {f.suffix}</small>}</>;
-}
-
-// modulo: dados do cadastro (lib/modulos.js)
-// fields: { name, label, type, required, maxLength, hint, mask, show, suffix, vazio, wide,
-//           createOnly, createOnlyRequired, formOnly (so no formulario), listOnly (so na tabela) }
-export default function CrudPage({ modulo, fields }) {
-  const { endpoint, num, titulo, texto: descricao, singular, novo } = modulo;
+// Tela de cadastro usada por Usuarios, Laboratorios, Salas, Status e Criar conta.
+// fields: { name, label, coluna, type, required, maxLength, hint, mask, show, vazio,
+//           createOnly (bloqueado na edicao), createOnlyRequired (obrigatorio so no cadastro),
+//           formOnly (so no formulario), listOnly (so na tabela) }
+// semTabela: mostra so o formulario | irPara: pagina para ir depois de cadastrar
+export default function CrudPage({ modulo, fields, titulo, descricao, semTabela, irPara }) {
+  const router = useRouter();
+  const { endpoint, singular } = modulo;
   const formFields = fields.filter((f) => !f.listOnly);
   const columns = fields.filter((f) => !f.formOnly);
-  const empty = Object.fromEntries(formFields.map((f) => [f.name, '']));
+  const vazio = Object.fromEntries(formFields.map((f) => [f.name, '']));
 
   const [items, setItems] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erroLista, setErroLista] = useState('');
-  const [form, setForm] = useState(empty);
+  const [form, setForm] = useState(vazio);
   const [editingId, setEditingId] = useState(null);
-  const [erroForm, setErroForm] = useState('');
-  const [salvando, setSalvando] = useState(false);
-  const [aviso, setAviso] = useState(null);
+  const [mensagem, setMensagem] = useState(null);
   const [busca, setBusca] = useState('');
 
-  async function load() {
+  // Busca a lista na API
+  async function carregar() {
     try {
-      setItems(await api(endpoint));
-      setErroLista('');
+      setItems(await listar(endpoint));
     } catch (e) {
-      setErroLista(e.message);
-    } finally {
-      setCarregando(false);
+      setMensagem({ tipo: 'erro', texto: e.message });
     }
   }
-  useEffect(() => { load(); }, []);
-
-  // O aviso some sozinho depois de alguns segundos
   useEffect(() => {
-    if (!aviso) return;
-    const t = setTimeout(() => setAviso(null), 4000);
-    return () => clearTimeout(t);
-  }, [aviso]);
+    if (!semTabela) carregar();
+  }, []);
 
-  function edit(item) {
-    const next = { ...empty };
+  // Coloca os dados do registro no formulario para editar
+  function editar(item) {
+    const dados = { ...vazio };
     formFields.forEach((f) => {
       if (f.formOnly) return;
       let v = item[f.name] ?? '';
       if (f.type === 'date') v = String(v).slice(0, 10);
       if (f.mask) v = mascaras[f.mask](v);
-      next[f.name] = v;
+      dados[f.name] = v;
     });
-    setForm(next);
+    setForm(dados);
     setEditingId(item.id);
-    setErroForm('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setMensagem(null);
+    window.scrollTo(0, 0);
   }
 
-  function cancel() {
-    setForm(empty); setEditingId(null); setErroForm('');
+  function cancelar() {
+    setForm(vazio);
+    setEditingId(null);
   }
 
-  async function submit(e) {
+  // Cadastra (POST) ou salva a edicao (PUT)
+  async function salvar(e) {
     e.preventDefault();
-    setErroForm('');
-    setSalvando(true);
     try {
       if (editingId) {
-        await api(`${endpoint}/${editingId}`, { method: 'PUT', body: form });
-        setAviso({ tipo: 'ok', texto: 'Alterações salvas.' });
+        await atualizar(endpoint, editingId, form);
+        setMensagem({ tipo: 'ok', texto: 'Alteracoes salvas.' });
       } else {
-        await api(endpoint, { method: 'POST', body: form });
-        setAviso({ tipo: 'ok', texto: 'Cadastro salvo com sucesso.' });
+        await cadastrar(endpoint, form);
+        if (irPara) {
+          alert('Cadastro feito! Agora entre com seu login e sua senha.');
+          router.push(irPara);
+          return;
+        }
+        setMensagem({ tipo: 'ok', texto: 'Cadastro salvo com sucesso.' });
       }
-      cancel();
-      load();
+      cancelar();
+      carregar();
     } catch (e) {
-      setErroForm(e.message);
-    } finally {
-      setSalvando(false);
+      setMensagem({ tipo: 'erro', texto: e.message });
     }
   }
 
-  async function remove(item) {
+  // Exclui (DELETE) depois de confirmar
+  async function remover(item) {
     if (!confirm(`Excluir ${singular} "${item.nome}"?`)) return;
     try {
-      await api(`${endpoint}/${item.id}`, { method: 'DELETE' });
-      setAviso({ tipo: 'ok', texto: 'Registro excluído.' });
-      if (editingId === item.id) cancel();
-      load();
+      await excluir(endpoint, item.id);
+      setMensagem({ tipo: 'ok', texto: 'Registro excluido.' });
+      if (editingId === item.id) cancelar();
+      carregar();
     } catch (e) {
-      setAviso({ tipo: 'erro', texto: e.message });
+      setMensagem({ tipo: 'erro', texto: e.message });
     }
   }
 
   const termo = semAcento(busca.trim());
   const visiveis = termo
-    ? items.filter((item) => columns.some((f) => semAcento(`${texto(f, item)} ${item[f.name] ?? ''}`).includes(termo)))
+    ? items.filter((item) => columns.some((f) => semAcento(texto(f, item)).includes(termo)))
     : items;
-
-  let mensagemVazia = '';
-  if (carregando) mensagemVazia = 'Carregando…';
-  else if (erroLista) mensagemVazia = erroLista;
-  else if (!items.length) mensagemVazia = 'Nenhum registro ainda. Preencha a ficha acima para cadastrar o primeiro.';
-  else if (!visiveis.length) mensagemVazia = `Nada encontrado para "${busca}".`;
 
   return (
     <div>
-      <header className="cabecalho">
-        <span className="sobretitulo">{num} · Cadastro</span>
-        <h1><span className="marca-texto">{titulo}</span></h1>
-        <p>{descricao}</p>
-      </header>
+      <h1>{titulo || modulo.titulo}</h1>
+      <p className="ajuda">{descricao || modulo.descricao}</p>
 
-      <form onSubmit={submit} className="ficha">
-        <div className="ficha-topo">
-          <h2>{editingId ? `Editando ${singular}` : novo}</h2>
-          <span className="ficha-num">{editingId ? `ficha nº ${String(editingId).padStart(4, '0')}` : 'ficha nova'}</span>
-        </div>
+      <form onSubmit={salvar} className="formulario">
+        {!semTabela && <h2>{editingId ? `Editando ${singular}` : `Cadastrar ${singular}`}</h2>}
 
-        <div className="campos">
-          {formFields.map((f) => {
-            const disabled = Boolean(editingId && f.createOnly);
-            const required = f.required && !(editingId && f.createOnlyRequired);
-            return (
-              <label key={f.name} className={`campo${f.wide ? ' largo' : ''}`}>
-                <span>{f.label}{required && <b> *</b>}</span>
-                <input
-                  type={f.type || 'text'}
-                  value={form[f.name]}
-                  required={required}
-                  disabled={disabled}
-                  min={f.type === 'number' ? 1 : undefined}
-                  maxLength={f.maxLength}
-                  inputMode={f.mask ? 'numeric' : undefined}
-                  placeholder={editingId && f.type === 'password' ? 'Deixe em branco para manter' : f.hint || ''}
-                  onChange={(e) => {
-                    const v = f.mask ? mascaras[f.mask](e.target.value) : e.target.value;
-                    setForm({ ...form, [f.name]: v });
-                  }}
-                />
-              </label>
-            );
-          })}
-        </div>
+        {formFields.map((f) => {
+          const required = f.required && !(editingId && f.createOnlyRequired);
+          return (
+            <div className="campo" key={f.name}>
+              <label>{f.label}{required && ' *'}</label>
+              <input
+                type={f.type || 'text'}
+                value={form[f.name]}
+                required={required}
+                disabled={Boolean(editingId && f.createOnly)}
+                min={f.type === 'number' ? 1 : undefined}
+                maxLength={f.maxLength}
+                placeholder={editingId && f.type === 'password' ? 'Deixe em branco para manter a senha' : f.hint || ''}
+                onChange={(e) => {
+                  const v = f.mask ? mascaras[f.mask](e.target.value) : e.target.value;
+                  setForm({ ...form, [f.name]: v });
+                }}
+              />
+            </div>
+          );
+        })}
 
-        {erroForm && <p className="ficha-erro" role="alert">{erroForm}</p>}
-
-        <div className="ficha-acoes">
-          <button type="submit" className="btn primario" disabled={salvando}>
-            {salvando ? 'Salvando…' : editingId ? 'Salvar alterações' : 'Cadastrar'}
-          </button>
-          {editingId && <button type="button" className="btn" onClick={cancel}>Cancelar</button>}
-        </div>
+        <p className="obrigatorio">* campo obrigatorio</p>
+        <button type="submit" className="btn-salvar">{editingId ? 'Salvar alteracoes' : 'Cadastrar'}</button>
+        {editingId && <button type="button" className="btn-cancelar" onClick={cancelar}>Cancelar</button>}
       </form>
 
-      <section>
-        <div className="lista-topo">
-          <h2>Cadastrados <span className="contador">{String(items.length).padStart(2, '0')}</span></h2>
-          <input
-            type="search"
-            className="busca"
-            placeholder={`Buscar ${titulo.toLowerCase()}…`}
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            aria-label={`Buscar ${titulo.toLowerCase()}`}
-          />
-        </div>
+      {mensagem && <p className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</p>}
 
-        <div className="tabela">
-          <table>
-            <thead>
-              <tr>
-                {columns.map((f) => <th key={f.name}>{f.label}</th>)}
-                <th aria-label="Ações" />
-              </tr>
-            </thead>
-            <tbody>
-              {mensagemVazia ? (
-                <tr><td colSpan={columns.length + 1} className={`linha-vazia${erroLista ? ' erro' : ''}`}>{mensagemVazia}</td></tr>
-              ) : visiveis.map((item) => (
-                <tr key={item.id} className={editingId === item.id ? 'editando' : ''}>
-                  {columns.map((f) => (
-                    <td key={f.name} className={f.wide ? 'longo' : f.show || f.type || f.mask ? '' : 'texto'}><Celula f={f} item={item} /></td>
-                  ))}
-                  <td>
-                    <div className="acoes">
-                      <button type="button" className="btn-texto" onClick={() => edit(item)}>Editar</button>
-                      <button type="button" className="btn-texto perigo" onClick={() => remove(item)}>Excluir</button>
-                    </div>
-                  </td>
+      {!semTabela && (
+        <>
+          <h2>{modulo.titulo} cadastrados ({items.length})</h2>
+          <input className="busca" placeholder="Digite para procurar..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+
+          <div className="tabela">
+            <table>
+              <thead>
+                <tr>
+                  {columns.map((f) => <th key={f.name}>{f.coluna || f.label}</th>)}
+                  <th>Acoes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {aviso && <div className={`aviso ${aviso.tipo}`} role="status">{aviso.texto}</div>}
+              </thead>
+              <tbody>
+                {visiveis.length === 0 && (
+                  <tr><td colSpan={columns.length + 1}>Nenhum registro encontrado.</td></tr>
+                )}
+                {visiveis.map((item) => (
+                  <tr key={item.id}>
+                    {columns.map((f) => <td key={f.name}>{texto(f, item)}</td>)}
+                    <td>
+                      <button type="button" className="btn-editar" onClick={() => editar(item)}>Editar</button>
+                      <button type="button" className="btn-excluir" onClick={() => remover(item)}>Excluir</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

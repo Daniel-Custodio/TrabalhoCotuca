@@ -1,37 +1,46 @@
 'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { listaModulos } from '../lib/modulos';
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { usuarioLogado, sair } from '../lib/sessao';
 
+// Menu do topo: links das paginas e quem esta logado
 export default function Menu() {
-  const path = usePathname();
+  const caminho = usePathname();
+  const router = useRouter();
+  const [usuario, setUsuario] = useState(null);
+
+  // Le o usuario logado sempre que muda de pagina
+  useEffect(() => {
+    setUsuario(usuarioLogado());
+  }, [caminho]);
+
+  function deslogar() {
+    sair();
+    setUsuario(null);
+    router.push('/login');
+  }
+
+  // Ninguem logado: so as opcoes de entrar e de criar conta
+  if (!usuario) {
+    return (
+      <nav className="menu">
+        <Link href="/login">Entrar</Link>
+        <Link href="/cadastro">Criar conta</Link>
+      </nav>
+    );
+  }
 
   return (
-    <aside className="lateral">
-      <Link href="/" className="marca">
-        <span className="marca-icone" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="7.5" cy="15.5" r="4.5" />
-            <path d="M10.7 12.3 20 3M16 7l3 3M18.5 4.5l2 2" />
-          </svg>
-        </span>
-        <span>
-          <strong>Reserva</strong>
-          <small>laboratórios &amp; salas</small>
-        </span>
-      </Link>
-
-      <nav className="menu">
-        <Link href="/" className={path === '/' ? 'ativo' : ''}><span>00</span>Painel</Link>
-        <p className="menu-grupo">Cadastros</p>
-        {listaModulos.map((m) => (
-          <Link key={m.href} href={m.href} className={path.startsWith(m.href) ? 'ativo' : ''}>
-            <span>{m.num}</span>{m.titulo}
-          </Link>
-        ))}
-      </nav>
-
-      <p className="lateral-rodape">Prática Profissional<br />2º semestre · 2026</p>
-    </aside>
+    <nav className="menu">
+      <Link href="/">Inicio</Link>
+      <Link href="/reservas">Reservas</Link>
+      <Link href="/laboratorios">Laboratorios</Link>
+      <Link href="/salas">Salas</Link>
+      <Link href="/usuarios">Usuarios</Link>
+      <Link href="/status">Status</Link>
+      <span className="usuario-logado">Logado como {usuario.login}</span>
+      <button type="button" className="btn-sair" onClick={deslogar}>Sair</button>
+    </nav>
   );
 }

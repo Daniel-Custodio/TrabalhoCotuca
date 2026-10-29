@@ -31,10 +31,4 @@ export function dataHoraBR(v) {
   return `${dataBR(s)} ${s.slice(11, 16)}`;
 }
 
-export const semAcento = (v) => String(v ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-
-// Cor do carimbo de acordo com o codigo do status
-export function classeStatus(codigo) {
-  const c = String(codigo || '').toUpperCase();
-  return ['LIVRE', 'OCUPADO', 'BLOQUEADO', 'RESERVADO'].includes(c) ? c.toLowerCase() : '';
-}
+export const semAcento = (v) => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
