@@ -101,10 +101,24 @@ class UsuarioCRUD {
     }
 
     // Exclui o usuario (o login sai junto pelo ON DELETE CASCADE)
-    excluir(id) {
-        return this._db.request()
-            .input('id', sql.Int, id)
-            .query('DELETE FROM dbo.Usuario WHERE id = @id');
+    // Antes apaga o historico de acessos (LogAcesso), tudo numa transacao:
+    // se o usuario tiver reservas, o banco barra e nada e apagado
+    async excluir(id) {
+        const transacao = new sql.Transaction(this._db);
+        await transacao.begin();
+        try {
+            await new sql.Request(transacao)
+                .input('id', sql.Int, id)
+                .query('DELETE FROM dbo.LogAcesso WHERE usuario_id = @id');
+            const resultado = await new sql.Request(transacao)
+                .input('id', sql.Int, id)
+                .query('DELETE FROM dbo.Usuario WHERE id = @id');
+            await transacao.commit();
+            return resultado;
+        } catch (erro) {
+            await transacao.rollback().catch(() => {});
+            throw erro;
+        }
     }
 }
 

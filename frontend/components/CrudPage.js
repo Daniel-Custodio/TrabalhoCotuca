@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { listar, cadastrar, atualizar, excluir } from '../lib/api';
 import { mascaras, dataBR, dataHoraBR, semAcento } from '../lib/formato';
 
@@ -13,12 +14,14 @@ function texto(f, item) {
   return String(v);
 }
 
-// Tela de cadastro usada por Usuarios, Laboratorios, Salas e Status.
-// fields: { name, label, type, required, maxLength, hint, mask, show, vazio,
+// Tela de cadastro usada por Usuarios, Laboratorios, Salas, Status e Criar conta.
+// fields: { name, label, coluna, type, required, maxLength, hint, mask, show, vazio,
 //           createOnly (bloqueado na edicao), createOnlyRequired (obrigatorio so no cadastro),
 //           formOnly (so no formulario), listOnly (so na tabela) }
-export default function CrudPage({ modulo, fields }) {
-  const { endpoint, titulo, singular } = modulo;
+// semTabela: mostra so o formulario | irPara: pagina para ir depois de cadastrar
+export default function CrudPage({ modulo, fields, titulo, descricao, semTabela, irPara }) {
+  const router = useRouter();
+  const { endpoint, singular } = modulo;
   const formFields = fields.filter((f) => !f.listOnly);
   const columns = fields.filter((f) => !f.formOnly);
   const vazio = Object.fromEntries(formFields.map((f) => [f.name, '']));
@@ -37,7 +40,9 @@ export default function CrudPage({ modulo, fields }) {
       setMensagem({ tipo: 'erro', texto: e.message });
     }
   }
-  useEffect(() => { carregar(); }, []);
+  useEffect(() => {
+    if (!semTabela) carregar();
+  }, []);
 
   // Coloca os dados do registro no formulario para editar
   function editar(item) {
@@ -69,6 +74,11 @@ export default function CrudPage({ modulo, fields }) {
         setMensagem({ tipo: 'ok', texto: 'Alteracoes salvas.' });
       } else {
         await cadastrar(endpoint, form);
+        if (irPara) {
+          alert('Cadastro feito! Agora entre com seu login e sua senha.');
+          router.push(irPara);
+          return;
+        }
         setMensagem({ tipo: 'ok', texto: 'Cadastro salvo com sucesso.' });
       }
       cancelar();
@@ -98,10 +108,11 @@ export default function CrudPage({ modulo, fields }) {
 
   return (
     <div>
-      <h1>Cadastro de {titulo}</h1>
+      <h1>{titulo || modulo.titulo}</h1>
+      <p className="ajuda">{descricao || modulo.descricao}</p>
 
       <form onSubmit={salvar} className="formulario">
-        <h2>{editingId ? `Editar ${singular}` : `Novo ${singular}`}</h2>
+        {!semTabela && <h2>{editingId ? `Editando ${singular}` : `Cadastrar ${singular}`}</h2>}
 
         {formFields.map((f) => {
           const required = f.required && !(editingId && f.createOnlyRequired);
@@ -115,7 +126,7 @@ export default function CrudPage({ modulo, fields }) {
                 disabled={Boolean(editingId && f.createOnly)}
                 min={f.type === 'number' ? 1 : undefined}
                 maxLength={f.maxLength}
-                placeholder={editingId && f.type === 'password' ? 'Deixe em branco para manter' : f.hint || ''}
+                placeholder={editingId && f.type === 'password' ? 'Deixe em branco para manter a senha' : f.hint || ''}
                 onChange={(e) => {
                   const v = f.mask ? mascaras[f.mask](e.target.value) : e.target.value;
                   setForm({ ...form, [f.name]: v });
@@ -125,39 +136,44 @@ export default function CrudPage({ modulo, fields }) {
           );
         })}
 
+        <p className="obrigatorio">* campo obrigatorio</p>
         <button type="submit" className="btn-salvar">{editingId ? 'Salvar alteracoes' : 'Cadastrar'}</button>
         {editingId && <button type="button" className="btn-cancelar" onClick={cancelar}>Cancelar</button>}
       </form>
 
       {mensagem && <p className={`mensagem ${mensagem.tipo}`}>{mensagem.texto}</p>}
 
-      <h2>{titulo} cadastrados ({items.length})</h2>
-      <input className="busca" placeholder="Buscar..." value={busca} onChange={(e) => setBusca(e.target.value)} />
+      {!semTabela && (
+        <>
+          <h2>{modulo.titulo} cadastrados ({items.length})</h2>
+          <input className="busca" placeholder="Digite para procurar..." value={busca} onChange={(e) => setBusca(e.target.value)} />
 
-      <div className="tabela">
-        <table>
-          <thead>
-            <tr>
-              {columns.map((f) => <th key={f.name}>{f.label}</th>)}
-              <th>Acoes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visiveis.length === 0 && (
-              <tr><td colSpan={columns.length + 1}>Nenhum registro encontrado.</td></tr>
-            )}
-            {visiveis.map((item) => (
-              <tr key={item.id}>
-                {columns.map((f) => <td key={f.name}>{texto(f, item)}</td>)}
-                <td>
-                  <button type="button" className="btn-editar" onClick={() => editar(item)}>Editar</button>
-                  <button type="button" className="btn-excluir" onClick={() => remover(item)}>Excluir</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="tabela">
+            <table>
+              <thead>
+                <tr>
+                  {columns.map((f) => <th key={f.name}>{f.coluna || f.label}</th>)}
+                  <th>Acoes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visiveis.length === 0 && (
+                  <tr><td colSpan={columns.length + 1}>Nenhum registro encontrado.</td></tr>
+                )}
+                {visiveis.map((item) => (
+                  <tr key={item.id}>
+                    {columns.map((f) => <td key={f.name}>{texto(f, item)}</td>)}
+                    <td>
+                      <button type="button" className="btn-editar" onClick={() => editar(item)}>Editar</button>
+                      <button type="button" className="btn-excluir" onClick={() => remover(item)}>Excluir</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

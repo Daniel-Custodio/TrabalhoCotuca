@@ -5,6 +5,8 @@ const usuarioRouters = require('../app/routes/usuarioRouters');
 const laboratorioRouters = require('../app/routes/laboratorioRouters');
 const salaRouters = require('../app/routes/salaRouters');
 const statusRouters = require('../app/routes/statusRouters');
+const loginRouters = require('../app/routes/loginRouters');
+const reservaRouters = require('../app/routes/reservaRouters');
 
 const aplicacao = express();
 
@@ -26,11 +28,13 @@ aplicacao.get('/', (request, response) => {
     response.json({ mensagem: 'API funcionando!' });
 });
 
-// Rotas de cada cadastro
+// Rotas de cada cadastro, do login e das reservas
 usuarioRouters(aplicacao);
 laboratorioRouters(aplicacao);
 salaRouters(aplicacao);
 statusRouters(aplicacao);
+loginRouters(aplicacao);
+reservaRouters(aplicacao);
 
 // Rota que nao existe: 404
 aplicacao.use((request, response) => {

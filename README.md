@@ -1,7 +1,7 @@
-# Sistema de Reserva de Laboratórios e Salas de Aula - Entrega 1
+# Sistema de Reserva de Laboratórios e Salas de Aula
 
 Projeto de Prática Profissional (2º semestre).
-Esta entrega contém os cadastros de **Usuários**, **Laboratórios**, **Salas** e **Status**.
+O sistema tem os cadastros de **Usuários**, **Laboratórios**, **Salas** e **Status**, a **tela de login** e a **reserva de laboratórios e salas**, com consulta das reservas.
 
 **Tecnologias:** Node.js (Express) no back-end, React com Next.js no front-end e SQL Server como banco de dados relacional.
 
@@ -78,8 +78,10 @@ A explicação de cada parte do código está em [EXPLICACAO.md](EXPLICACAO.md).
 | Laboratório | `GET` e `POST` `/Laboratorio` | `GET`, `PUT` e `DELETE` `/Laboratorio/:id` |
 | Sala | `GET` e `POST` `/Sala` | `GET`, `PUT` e `DELETE` `/Sala/:id` |
 | Status | `GET` e `POST` `/Status` | `GET`, `PUT` e `DELETE` `/Status/:id` |
+| Reserva | `GET` (com filtros) e `POST` `/Reserva` | `GET`, `PUT` e `DELETE` `/Reserva/:id` |
+| Login | `POST` `/Login` | |
 
-## Funcionalidades desta entrega
+## Funcionalidades
 
 - Cadastro de usuários com CPF, nome completo, data de aniversário, celular, e-mail, login e senha. A senha é salva com hash (bcrypt).
   - O CPF é conferido pelos dígitos verificadores; a data de aniversário precisa existir e não pode estar no futuro.
@@ -87,13 +89,18 @@ A explicação de cada parte do código está em [EXPLICACAO.md](EXPLICACAO.md).
 - Cadastro de laboratórios com código, nome, capacidade e localização.
 - Cadastro de salas com código, nome, capacidade e localização.
 - Cadastro de status das reservas.
-- A API devolve mensagens claras para erros de validação, valores repetidos (código, CPF, e-mail, login), textos maiores que a coluna do banco e registros em uso.
+- Login: a senha digitada é conferida com o hash guardado (bcrypt). Cada acesso fica registrado na tabela `LogAcesso` e atualiza a data do último acesso.
+- Reserva de laboratório ou sala com dia (ou período), hora inicial e final, usuário e status.
+  - O sistema não deixa reservar um horário que bate com outra reserva do mesmo laboratório ou sala (uma reserva com status Livre não ocupa o horário).
+  - Consulta das reservas por laboratório ou sala, dia, horário, usuário e status.
+- A API devolve mensagens claras para erros de validação, valores repetidos (código, CPF, e-mail, login), horário já reservado, textos maiores que a coluna do banco e registros em uso.
 
 ## Interface
 
-- Menu no topo com os links das telas.
-- Página inicial com a quantidade de registros de cada cadastro e o aviso se a API está conectada.
-- Em cada cadastro: um formulário para cadastrar e editar e uma tabela com busca e os botões Editar e Excluir.
+- Sem login, só abrem as telas **Entrar** e **Criar conta**. Depois de entrar, o menu mostra quem está logado e o botão Sair.
+- Página inicial com atalhos para o que a pessoa pode fazer.
+- Tela de reservas: formulário de nova reserva e consulta com filtros; cada pessoa pode cancelar as próprias reservas.
+- Em cada cadastro: um texto de ajuda, um formulário com exemplos dentro dos campos e uma tabela com busca e os botões Editar e Excluir.
 - Máscaras de CPF e celular enquanto digita e mensagens de sucesso ou erro.
 
 ## Bibliografia
